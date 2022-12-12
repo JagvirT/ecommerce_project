@@ -1,7 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import login_user, logout_user, current_user, login_required
 from app.auth.forms import UserCreationForm, LoginForm
-from app.models import User, Product, db
+from app.models import User, Product, db, Cart
+from werkzeug.security import check_password_hash
+
 auth = Blueprint('auth', __name__, template_folder="auth templates")
 
 @auth.route('/signup', methods=['GET', 'POST'])
@@ -32,7 +34,7 @@ def login():
 
             user = User.query.filter_by(username=username).first()
             if user:
-                if password == user.password:
+                if check_password_hash(user.password, password):
                     print("logged in")
                     login_user(user)
                 else:
@@ -62,18 +64,31 @@ def this_product(product_id):
     else:
         return redirect(url_for('auth.available_products'))
 
-@auth.route('/your_cart', methods=['GET','POST'])
-def your_cart():
-    cart = Product.query.all()
+@auth.route('/your_cart/<int:product_id>')
+def your_cart(product_id):
+    product = Product.query.filter_by(id=product_id).first()
+    if product:
+        current_user.add_product(product)
     
+    my_cart = current_user.get_product.all()
+    print(my_cart)
+    total= 0
+    for item in my_cart:
+        total += item.price
 
-    return render_template('your_cart.html', cart = cart)
+
+    return render_template('your_cart.html',  cart= my_cart, total=total)
 
 
 @auth.route('/your_cart/delete/<int:product_id>')
 def remove_item(product_id):
-    item = Product.query.get(product_id)
-    if item:
-        db.session.delete(item)
-        db.session.commit()
-    return redirect(url_for('poke_blueprint.your_deck'))
+    product = Product.query.filter_by(id=product_id).first()
+    if product:
+        current_user.delete_product(product)
+
+    # item = Product.query.get(product_id)
+    # if item:
+    #     db.session.delete(item)
+    #     db.session.commit()
+    return redirect(url_for('auth.your_cart'))
+
