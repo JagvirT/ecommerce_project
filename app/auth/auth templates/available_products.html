@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+{% for product in products %}
+<div class="card">
+    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
+      <img src="https://fyf.tac-cdn.net/images/products/large/FYF-870.jpg?auto=webp&quality=60&width=690" class="img-fluid"/>
+      <a href="#!">
+        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+      </a>
+    </div>
+    <div class="card-body">
+      <h1 class="card-title">{{product.name}}</h1>
+      <hr>
+      <h3><strong>Price: ${{product.price}}.00</strong></h3>
+      <h3><strong>Quantity: {{product.quantity}}</strong></h3>
+      <a href="/available_products/{{product.id}}" class="btn btn-primary">See Product</a>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
